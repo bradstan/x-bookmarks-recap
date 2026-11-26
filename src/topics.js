@@ -97,19 +97,19 @@
     [/california|\bca\b|加州/i, '加州'], [/united states|\busa?\b|美国/i, '美国'], [/china|中国/i, '中国'],
   ];
 
-  // 人格：按「排名第一的话题」决定
+  // 人格：按「排名第一的话题」决定（第一名占比低于 15% 时为「杂食信息猎人」）。口号用第一人称，卡片是「我」在晒
   const PERSONAS = {
-    agent: { name: 'Agent 驯兽师', line: '别人还在聊天，你已经让 AI 替你打工了。' },
-    dev: { name: '开源仓库收割机', line: 'Star 先点上，代码以后一定看。' },
-    money: { name: '搞钱雷达', line: '每一条「月入 X 万」都没逃过你的眼睛。' },
-    content: { name: '流量炼金术士', line: '你研究的不是内容，是人性。' },
-    aigc: { name: 'AI 导演', line: '提示词就是你的分镜，模型就是你的剧组。' },
-    invest: { name: '华尔街夜读生', line: '白天上班，晚上复盘，收藏夹就是你的研报库。' },
-    design: { name: '审美强迫症', line: '丑的东西，你多看一眼都觉得累。' },
-    learn: { name: '终身学习者', line: '收藏 = 学会，这是你今年最大的错觉。' },
-    productivity: { name: '效率狂魔', line: '为了省 5 分钟，你愿意折腾 5 小时。' },
-    life: { name: '人间清醒派', line: '刷的是推特，想的是人生。' },
-    other: { name: '杂食信息猎人', line: '没有标签能定义你，收藏夹就是你的百科全书。' },
+    agent: { name: 'Agent 驯兽师', line: '别人还在聊天，我已经让 AI 替我打工了。' },
+    dev: { name: '开源仓库收割机', line: 'Star 先点上，代码以后我一定看。' },
+    money: { name: '搞钱雷达', line: '每一条「月入 X 万」都没逃过我的眼睛。' },
+    content: { name: '流量炼金术士', line: '内容背后的人性，才是我真正在研究的。' },
+    aigc: { name: 'AI 导演', line: '提示词是我的分镜，模型是我的剧组。' },
+    invest: { name: '华尔街夜读生', line: '白天上班，晚上复盘，收藏夹就是我的研报库。' },
+    design: { name: '审美强迫症', line: '丑的东西，我多看一眼都觉得累。' },
+    learn: { name: '终身学习者', line: '收藏 = 学会，这是我今年最美的错觉。' },
+    productivity: { name: '效率狂魔', line: '为了省 5 分钟，我愿意折腾 5 小时。' },
+    life: { name: '人间清醒派', line: '我刷的是推特，想的是人生。' },
+    other: { name: '杂食信息猎人', line: '没有标签能定义我，收藏夹就是我的百科全书。' },
   };
 
   const api = { TOPICS, BRANDS, KEYWORDS, CITIES, PERSONAS };
