@@ -38,6 +38,9 @@
       out.push({
         id, date, text,
         articleText: t.articleText || '',
+        articleTitle: t.articleTitle || '',
+        articlePreview: t.articlePreview || '',
+        thumb: /^data:image\//.test(t.thumb || '') ? t.thumb : '',
         isArticle,
         isLongPost: !!note.text,
         isQuote: !!(lg.is_quote_status || t.quotedTweet),
@@ -287,6 +290,40 @@
       return parts.join('；') + `。${year + 1}，把收藏变成作品，你已经准备好了！`;
     })();
 
+    // 10. 档案页需要的扩展统计
+    const avatars = {};
+    const rawAvatars = (raw && !Array.isArray(raw) && raw.avatars) || {};
+    for (const [u, v] of Object.entries(rawAvatars)) if (/^data:image\//.test(v || '')) avatars[u] = v;
+    const globalBookmarks = hasRaw ? items.reduce((s, t) => s + (t.bookmarksGlobal || 0), 0) : null;
+    const titleOf = (t) => t.articleTitle || stripUrls(t.text).trim().split('\n')[0] || '';
+    const longest = [...items].sort((a, b) => (b.articleText.length || b.text.length) - (a.articleText.length || a.text.length))[0];
+    const longestChars = longest ? (longest.articleText.length || stripUrls(longest.text).length) : 0;
+    // 每个领域里最火的一条，当作代表作
+    const topicPicks = {};
+    for (const tp of topics.slice(0, 5)) {
+      topicPicks[tp.id] = [...items].filter((t) => t.topics[0] === tp.id && titleOf(t)).sort((a, b) => pop(b) - pop(a)).slice(0, 2);
+    }
+    // 季度冠军领域
+    const quarters = [0, 1, 2, 3].map((q) => {
+      const c = countBy(items.filter((t) => Math.floor(t.savedAt.getMonth() / 3) === q && t.topics.length).map((t) => t.topics[0]));
+      const total = items.filter((t) => Math.floor(t.savedAt.getMonth() / 3) === q).length;
+      return c[0] ? { q: q + 1, id: c[0][0], name: topicMeta[c[0][0]].name, color: topicMeta[c[0][0]].color, count: c[0][1], total } : { q: q + 1, total };
+    });
+    // 2027 预言：下半年占比涨得最多的领域
+    const half = (h) => items.filter((t) => (t.savedAt.getMonth() < 6) === (h === 0) && t.topics.length);
+    const share = (arr, id) => (arr.length ? arr.filter((t) => t.topics[0] === id).length / arr.length : 0);
+    const H1 = half(0), H2 = half(1);
+    const rising = H1.length >= 10 && H2.length >= 10
+      ? topics.map((tp) => ({ ...tp, delta: share(H2, tp.id) - share(H1, tp.id) })).sort((a, b) => b.delta - a.delta)[0]
+      : null;
+    // 拼贴用的图：优先长文封面，其次热门配图
+    const collage = [...items].filter((t) => t.thumb).sort((a, b) => pop(b) - pop(a)).slice(0, 14);
+    const withThumb = (arr) => arr.filter(Boolean);
+    const kwMatcher = keywords[0] && keywordMatchers.find((k) => k.word === keywords[0].word);
+
+    const evidence = withThumb([mostViral, hiddenGem, longest, firstOfYear]).filter((t, i, a) => a.indexOf(t) === i);
+    const keywordPicks = kwMatcher ? items.filter((t) => !evidence.includes(t) && kwMatcher.res.some((re) => re.test(stripUrls(t.full))) && titleOf(t)).sort((a, b) => pop(b) - pop(a)).slice(0, 2) : [];
+
     return {
       year, years, total: n, allTotal: all.length, hasRaw,
       chars, charsEstimated, readHours, videoMinutes, totalViews, articleCount, articlesWithText,
@@ -298,6 +335,7 @@
       formats, kinds, cjk, en,
       firstOfYear, latest, dig: { tweet: dig, days: digDays },
       keywords, persona, badges: B, summary,
+      avatars, globalBookmarks, longest, longestChars, topicPicks, quarters, rising, collage, evidence, titleOf, keywordPicks,
       tweetUrl,
     };
   }

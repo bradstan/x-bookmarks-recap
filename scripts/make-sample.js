@@ -34,6 +34,18 @@ const articles = [
   '出海 SaaS 复盘：从 0 到 ARR 50 万美金，我做对的三件事。',
 ];
 
+// 程序生成的抽象图（SVG data URI），当作示例的封面和头像
+const palette = ['#1F3BD6', '#F2C230', '#D7263D', '#141414', '#2BB673', '#FF7A45', '#7C5CFF', '#00C2FF'];
+const svg = (w, h, body) => 'data:image/svg+xml;base64,' + Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${body}</svg>`).toString('base64');
+function fakeCover(i) {
+  const a = palette[i % palette.length], b = palette[(i * 3 + 2) % palette.length];
+  const shapes = Array.from({ length: 5 }, (_, k) => `<circle cx="${Math.floor(rand() * 360)}" cy="${Math.floor(rand() * 240)}" r="${20 + Math.floor(rand() * 90)}" fill="${palette[(i + k) % palette.length]}" opacity="0.7"/>`).join('');
+  return svg(360, 240, `<rect width="360" height="240" fill="${a}"/><rect x="${Math.floor(rand() * 200)}" y="0" width="160" height="240" fill="${b}"/>${shapes}<text x="20" y="220" font-family="Arial Black,Arial" font-size="40" fill="#fff">DEMO ${i}</text>`);
+}
+function fakeAvatar(i) {
+  const a = palette[i % palette.length], b = palette[(i + 3) % palette.length];
+  return svg(200, 200, `<rect width="200" height="200" fill="${a}"/><circle cx="100" cy="80" r="42" fill="${b}"/><rect x="40" y="130" width="120" height="90" rx="50" fill="${b}"/>`);
+}
 const out = [];
 let t = Date.UTC(2026, 10, 15);
 for (let i = 0; i < 320; i++) {
@@ -65,7 +77,14 @@ for (let i = 0; i < 320; i++) {
       views: { count: String(likes * (60 + Math.floor(rand() * 200))) },
     },
   };
-  if (isArticle) tw.articleText = pick(articles).repeat(40);
+  if (isArticle) {
+    const art = pick(articles);
+    tw.articleText = art.repeat(40);
+    tw.articleTitle = art.split('：')[0].replace(/[.:].*$/, '');
+    tw.articlePreview = art;
+  }
+  if (isArticle || tw.media.length) tw.thumb = fakeCover(i);
   out.push(tw);
 }
-process.stdout.write(JSON.stringify({ me: { name: '示例用户', username: 'demo_user' }, tweets: out }));
+const avatars = Object.fromEntries(authors.slice(0, 12).map((a, i) => [a.username, fakeAvatar(i)]));
+process.stdout.write(JSON.stringify({ me: { name: '示例用户', username: 'demo_user', avatar: fakeAvatar(99) }, avatars, tweets: out }));
