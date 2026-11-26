@@ -1,4 +1,4 @@
-# 收藏夹年报 · X Bookmarks Wrapped
+# X收藏夹年度报告 · xbookmark-yearlyreport
 
 把你一年的 X（Twitter）收藏夹，变成一份可以晒的年度报告：
 
@@ -17,14 +17,14 @@
 
 ## 使用
 
-**👉 在线版：https://bradstan.github.io/bookmarks-wrapped/**
+**👉 在线版：https://bradstan.github.io/xbookmark-yearlyreport/**
 
 **1. 导出收藏夹**
 
 在已经用 Chrome 登录 X 的电脑上，打开终端运行（需要 Node.js 22 以上）：
 
 ```bash
-npx github:bradstan/bookmarks-wrapped
+npx github:bradstan/xbookmark-yearlyreport
 ```
 
 当前目录会生成一个 `wrapped.json`，里面有你的全部收藏，以及你的名字、@id 和头像（用来画在分享卡片上）。
@@ -40,7 +40,7 @@ npx github:bradstan/bookmarks-wrapped
 也可以本地运行网页：
 
 ```bash
-git clone https://github.com/bradstan/bookmarks-wrapped && cd bookmarks-wrapped && python3 -m http.server 8000
+git clone https://github.com/bradstan/xbookmark-yearlyreport && cd xbookmark-yearlyreport && python3 -m http.server 8000
 ```
 
 然后打开 http://localhost:8000。

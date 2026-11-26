@@ -1,9 +1,9 @@
 {
-  "name": "bookmarks-wrapped",
+  "name": "xbookmark-yearlyreport",
   "version": "0.1.0",
   "description": "把你一年的 X 收藏夹变成一份可以晒的年度报告。数据只在本地处理。",
   "license": "MIT",
-  "bin": { "bookmarks-wrapped": "scripts/export.mjs" },
+  "bin": { "xbookmark-yearlyreport": "scripts/export.mjs" },
   "files": ["scripts/export.mjs", "scripts/enrich.mjs"],
   "engines": { "node": ">=22" }
 }

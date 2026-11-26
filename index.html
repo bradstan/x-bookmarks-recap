@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>收藏夹年报</title>
+<title>X收藏夹年度报告</title>
 <meta name="description" content="把你一年的 X 收藏夹，变成一份可以晒的年度报告。数据只在你的浏览器里处理。">
 <link rel="stylesheet" href="src/style.css">
 </head>
@@ -11,7 +11,7 @@
 
 <main id="landing" class="landing">
   <div class="landing-inner">
-    <p class="kicker">X / Twitter Bookmarks Wrapped</p>
+    <p class="kicker">xbookmark-yearlyreport</p>
     <h1>你的收藏夹<br><span class="grad">年度报告</span></h1>
     <p class="lead">一年收藏了多少？最爱什么话题？你是哪种收藏人格？<br>拖进你的收藏夹数据，10 秒生成一张能晒的年报。</p>
 
@@ -26,7 +26,7 @@
     <section class="howto">
       <h2>第一步：导出收藏夹</h2>
       <p>在已登录 X 的电脑上，打开终端运行（需要 Node.js 22 以上，会读取 Chrome 里 X 的登录状态）：</p>
-      <pre><code>npx github:bradstan/bookmarks-wrapped</code></pre>
+      <pre><code>npx github:bradstan/xbookmark-yearlyreport</code></pre>
       <p class="muted">会在当前目录生成 <code>wrapped.json</code>，里面有你的全部收藏，以及你的名字、@id 和头像。</p>
       <p class="muted">加上 <code>--articles</code> 会顺便抓取 X 长文全文，字数和领域统计更准（每篇约 2 秒）。用 Firefox 的话加上 <code>--firefox-profile default-release</code>。</p>
       <h2>第二步：拖进上面的框</h2>

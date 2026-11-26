@@ -3,8 +3,8 @@
 // 生成的 wrapped.json 直接拖进网页即可。全程只在你的电脑上运行，读取的是浏览器里 X 的登录状态。
 //
 // 用法：
-//   npx github:bradstan/bookmarks-wrapped            # 导出收藏 + 个人资料
-//   npx github:bradstan/bookmarks-wrapped --articles # 另外补全 X 长文全文（每篇约 2 秒）
+//   npx github:bradstan/xbookmark-yearlyreport            # 导出收藏 + 个人资料
+//   npx github:bradstan/xbookmark-yearlyreport --articles # 另外补全 X 长文全文（每篇约 2 秒）
 // 其它参数会原样传给 bird，例如 --firefox-profile default-release
 import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
@@ -76,4 +76,4 @@ if (withArticles) {
 }
 
 writeFileSync(out, JSON.stringify({ me, exportedAt: new Date().toISOString(), tweets }));
-step(`✅ 已保存到 ${out}，把它拖进网页即可：https://bradstan.github.io/bookmarks-wrapped/`);
+step(`✅ 已保存到 ${out}，把它拖进网页即可：https://bradstan.github.io/xbookmark-yearlyreport/`);
