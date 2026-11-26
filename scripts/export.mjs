@@ -2,7 +2,10 @@
 // 一键导出：你的 X 资料（名字、@id、头像）+ 全部收藏 + 长文标题/封面/全文 + 配图缩略图 + 作者头像。
 // 生成的 wrapped.json 直接拖进网页即可。全程只在你的电脑上运行，读取的是浏览器里 X 的登录状态。
 import { execFile, execFileSync } from 'node:child_process';
-import { writeFileSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync, statSync } from 'node:fs';
+import { createServer } from 'node:http';
+import { dirname, join, extname, resolve, sep } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 const execFileP = promisify(execFile);
 
@@ -15,6 +18,7 @@ if (args.includes('--help') || args.includes('-h')) {
   --no-articles       不抓 X 长文的标题、封面和全文（更快，但报告会少很多内容）
   --no-images         不下载配图和头像（卡片上就没有图片）
   --out=文件名        输出文件，默认 wrapped.json
+  --no-open           导出后不自动打开报告（默认会在本机浏览器里打开）
   --firefox-profile default-release   用 Firefox 的登录状态（默认读 Chrome）
 
 导出后打开 https://bradstan.github.io/x-bookmarks-recap/ ，把文件拖进去。`);
@@ -22,8 +26,9 @@ if (args.includes('--help') || args.includes('-h')) {
 }
 const withArticles = !args.includes('--no-articles') && !args.includes('--fast');
 const withImages = !args.includes('--no-images');
+const withOpen = !args.includes('--no-open');
 const out = (args.find((a) => a.startsWith('--out=')) || '--out=wrapped.json').slice(6);
-const birdArgs = args.filter((a) => !['--no-articles', '--no-images', '--fast', '--articles'].includes(a) && !a.startsWith('--out='));
+const birdArgs = args.filter((a) => !['--no-articles', '--no-images', '--no-open', '--fast', '--articles'].includes(a) && !a.startsWith('--out='));
 
 // 让 Node 的 fetch 走 HTTPS_PROXY（开着代理的环境下 bird 才能连上 X）
 const env = { ...process.env, NODE_USE_ENV_PROXY: '1' };
@@ -140,4 +145,34 @@ if (withImages) {
 }
 
 writeFileSync(out, JSON.stringify({ me, exportedAt: new Date().toISOString(), avatars: data.avatars, tweets }));
-step(`✅ 已保存到 ${out}，把它拖进网页即可：https://bradstan.github.io/x-bookmarks-recap/`);
+step(`✅ 已保存到 ${out}`);
+
+// 5. 在本机打开报告：起一个只监听 127.0.0.1 的临时服务器，网页和数据都从你自己的电脑读取
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+if (!withOpen || !existsSync(join(root, 'index.html'))) {
+  step(`把 ${out} 拖进网页即可：https://bradstan.github.io/x-bookmarks-recap/`);
+} else {
+  const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.css': 'text/css; charset=utf-8', '.json': 'application/json', '.ttf': 'font/ttf', '.txt': 'text/plain; charset=utf-8', '.png': 'image/png', '.svg': 'image/svg+xml' };
+  let idle;
+  const bye = () => { step('报告已在浏览器里打开，本地服务器已关闭。需要重新打开时，运行同一条命令加 --no-articles 会更快，或把 wrapped.json 拖进在线网页。'); process.exit(0); };
+  const server = createServer((req, res) => {
+    const url = decodeURIComponent((req.url || '/').split('?')[0]);
+    // 只放出网页需要的文件：首页、src/、assets/、sample/，以及刚导出的数据
+    const allowed = url === '/' || url === '/index.html' || url === '/wrapped.json' || /^\/(src|assets|sample)\/[\w./-]+$/.test(url);
+    const file = url === '/' ? join(root, 'index.html') : url === '/wrapped.json' ? resolve(out) : resolve(root, '.' + url);
+    if (!allowed || url.includes('..') || (url !== '/wrapped.json' && !file.startsWith(root + sep))) { res.writeHead(403); return res.end(); }
+    if (!existsSync(file) || !statSync(file).isFile()) { res.writeHead(404); return res.end(); }
+    res.writeHead(200, { 'Content-Type': types[extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
+    res.end(readFileSync(file));
+    // 数据被网页取走后 2 分钟自动退出，避免命令一直挂着
+    if (url === '/wrapped.json') { clearTimeout(idle); idle = setTimeout(bye, 120000); }
+  });
+  server.listen(0, '127.0.0.1', () => {
+    const link = `http://127.0.0.1:${server.address().port}/?data=wrapped.json`;
+    step(`🎉 正在浏览器里打开你的报告：${link}`);
+    step('   （这个地址只在你自己的电脑上有效；页面打开 2 分钟后命令会自动结束）');
+    const opener = process.platform === 'darwin' ? ['open', [link]] : process.platform === 'win32' ? ['cmd', ['/c', 'start', '', link]] : ['xdg-open', [link]];
+    if (!process.env.XBR_NO_BROWSER) { try { execFile(opener[0], opener[1], () => {}); } catch (e) { /* 打不开就手动复制链接 */ } }
+    idle = setTimeout(bye, 15 * 60000);
+  });
+}

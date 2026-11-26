@@ -26,6 +26,18 @@
     try { load(await (await fetch('sample/bookmarks.sample.json')).json()); }
     catch (e) { showErr('示例数据加载失败：' + e.message); }
   });
+  // 由导出命令在本机打开时，网址里会带 ?data=wrapped.json，自动载入（只允许同目录下的 .json 文件名）
+  (async () => {
+    const f = new URLSearchParams(location.search).get('data');
+    if (!f || !/^[\w.-]+\.json$/.test(f)) return;
+    try { const res = await fetch(f, { cache: 'no-store' }); if (res.ok) load(await res.json()); else showErr('没找到数据文件：' + f); }
+    catch (e) { showErr('数据文件载入失败：' + e.message); }
+  })();
+  $('#copyPrompt').addEventListener('click', async (e) => {
+    const text = $('#prompt').textContent;
+    try { await navigator.clipboard.writeText(text); e.target.textContent = '已复制 ✓ 去发给你的 AI'; }
+    catch (err) { window.prompt('复制下面这段话：', text); }
+  });
   $('#back').addEventListener('click', () => { $('#report').hidden = true; $('#landing').hidden = false; });
   $('#year').addEventListener('change', (e) => render(+e.target.value));
 

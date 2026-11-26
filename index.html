@@ -15,21 +15,30 @@
     <h1>你的收藏夹<br><span class="grad">年度报告</span></h1>
     <p class="lead">一年收藏了多少？最爱什么话题？你是哪种收藏人格？<br>拖进你的收藏夹数据，生成 9 张「收藏档案」海报，外加 3 张信息更集中的深色版。</p>
 
-    <label id="drop" class="drop">
-      <input id="file" type="file" accept=".json,application/json" hidden>
-      <strong>拖入 wrapped.json</strong>
-      <span>或点击选择文件</span>
-    </label>
-    <p id="err" class="err" hidden></p>
-    <button id="demo" class="link-btn" type="button">先看看示例数据 →</button>
+    <section class="ai-box">
+      <h2>最简单：把这段话发给你的 AI</h2>
+      <p class="muted">Claude Code、Codex、Cursor 这类能在电脑上运行命令的 AI 都可以。它会帮你导出收藏，跑完自动在浏览器里打开报告。</p>
+      <pre id="prompt" class="prompt">帮我生成我的 X 收藏夹年度报告。请在终端运行：
+
+npx github:bradstan/x-bookmarks-recap
+
+说明：它会读取我电脑上 Chrome 里 X 的登录状态，导出全部收藏并逐篇读取长文，可能要 5–10 分钟，请耐心等它跑完，不要中途停止；跑完会自动在浏览器里打开报告。如果提示没有 Node.js 或版本低于 22，请先帮我安装 Node.js 22 以上再运行。如果读取收藏失败，提醒我先用 Chrome 登录 x.com。</pre>
+      <button id="copyPrompt" class="btn" type="button">复制这段话</button>
+    </section>
 
     <section class="howto">
-      <h2>第一步：导出收藏夹</h2>
-      <p>在已登录 X 的电脑上，打开终端运行（需要 Node.js 22 以上，会读取 Chrome 里 X 的登录状态）：</p>
+      <h2>自己动手也只要一行</h2>
+      <p>在已用 Chrome 登录 X 的电脑上，打开终端运行（需要 Node.js 22 以上）：</p>
       <pre><code>npx github:bradstan/x-bookmarks-recap</code></pre>
-      <p class="muted">会在当前目录生成 <code>wrapped.json</code>：全部收藏、长文的标题和封面、配图缩略图、收藏最多的作者头像，以及你的名字、@id 和头像。长文要逐篇读取，几百篇大约需要 5–10 分钟。</p>
-      <p class="muted">赶时间可以加 <code>--no-articles</code>（报告会少很多内容）。用 Firefox 的话加上 <code>--firefox-profile default-release</code>。</p>
-      <h2>第二步：拖进上面的框</h2>
+      <p class="muted">跑完会自动在浏览器打开报告，同时在当前目录留下一份 <code>wrapped.json</code>。长文要逐篇读取，几百篇大约 5–10 分钟；赶时间可以加 <code>--no-articles</code>。用 Firefox 的话加上 <code>--firefox-profile default-release</code>。</p>
+      <h2>已经有 wrapped.json？</h2>
+      <label id="drop" class="drop">
+        <input id="file" type="file" accept=".json,application/json" hidden>
+        <strong>拖入 wrapped.json</strong>
+        <span>或点击选择文件</span>
+      </label>
+      <p id="err" class="err" hidden></p>
+      <button id="demo" class="link-btn" type="button">先看看示例数据 →</button>
       <p class="muted">🔒 全部计算在你的浏览器里完成，数据不会上传到任何服务器。这个页面没有后端，代码全部开源。</p>
     </section>
   </div>

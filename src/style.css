@@ -163,3 +163,6 @@ pre { background: var(--panel); border: 1px solid var(--line); border-radius: 12
 .tpl b { font-size: 16px; }
 .tpl span { font-size: 13px; color: var(--muted); }
 .tpl.on { border-color: #7C5CFF; background: #1b1830; }
+.ai-box { background: var(--panel); border: 1px solid var(--line); border-radius: 20px; padding: 20px; margin-top: 8px; }
+.ai-box h2 { margin: 0 0 8px; font-size: 20px; }
+.prompt { white-space: pre-wrap; font-family: var(--font); font-size: 15px; line-height: 1.7; background: #0f0f18; color: var(--text); margin: 12px 0 14px; }

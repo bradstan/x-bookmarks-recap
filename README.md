@@ -28,38 +28,32 @@
 
 ## 使用
 
-**👉 在线版：https://bradstan.github.io/x-bookmarks-recap/**
+### 最简单：把这段话发给你的 AI
 
-**1. 导出收藏夹**
+Claude Code、Codex、Cursor 这类能在电脑上运行命令的 AI 都可以：
 
-在已经用 Chrome 登录 X 的电脑上，打开终端运行（需要 Node.js 22 以上）：
+```text
+帮我生成我的 X 收藏夹年度报告。请在终端运行：
+
+npx github:bradstan/x-bookmarks-recap
+
+说明：它会读取我电脑上 Chrome 里 X 的登录状态，导出全部收藏并逐篇读取长文，可能要 5–10 分钟，请耐心等它跑完，不要中途停止；跑完会自动在浏览器里打开报告。如果提示没有 Node.js 或版本低于 22，请先帮我安装 Node.js 22 以上再运行。如果读取收藏失败，提醒我先用 Chrome 登录 x.com。
+```
+
+### 自己动手也只要一行
+
+在已用 Chrome 登录 X 的电脑上运行（需要 Node.js 22 以上）：
 
 ```bash
 npx github:bradstan/x-bookmarks-recap
 ```
 
-当前目录会生成一个 `wrapped.json`：全部收藏、长文的标题 / 封面 / 全文、配图缩略图、收藏最多的作者头像，以及你的名字、@id 和头像。长文要逐篇读取，几百篇大约需要 5–10 分钟。
+跑完会自动在浏览器里打开报告。报告页顶部可以选模板（档案版 / 深色版）、改名字和头像，再下载整套图、分享到 X 或复制完整文案。
 
-- 加 `--no-articles`：跳过长文，几十秒就能导完，但报告会少很多内容。
-- 加 `--no-images`：不下载任何图片。
+- 长文要逐篇读取，几百篇大约 5–10 分钟；赶时间加 `--no-articles`。
 - 用 Firefox：加 `--firefox-profile default-release`。
-- 导出用的是 [bird](https://github.com/steipete/bird)，它读取浏览器里 X 的登录状态，数据只写到你自己的电脑上。
-
-**2. 打开网页，把 `wrapped.json` 拖进去**
-
-报告生成后，在顶部选模板（档案版 / 深色版），可以改名字、@id、换头像，再下载整套图、分享到 X，或复制完整文案。
-
-也可以本地运行网页：
-
-```bash
-git clone https://github.com/bradstan/x-bookmarks-recap && cd x-bookmarks-recap && python3 -m http.server 8000
-```
-
-然后打开 http://localhost:8000。
-
-## 自己部署一份
-
-Fork 这个仓库，在仓库的 Settings → Pages 里选择从 `main` 分支部署，再把 [`src/card.js`](src/card.js) 里的 `SITE` 改成你的地址，卡片底部就会显示你的链接。
+- 当前目录会留下一份 `wrapped.json`，以后可以直接拖进 [在线版](https://bradstan.github.io/x-bookmarks-recap/) 重新生成，不用再导出。
+- 导出用的是 [bird](https://github.com/steipete/bird)，它读取浏览器里 X 的登录状态。报告是在你电脑上临时起的本地网页（只监听 127.0.0.1），打开 2 分钟后自动关闭。
 
 ## 它是怎么算的
 
@@ -80,6 +74,10 @@ Fork 这个仓库，在仓库的 Settings → Pages 里选择从 `main` 分支�
 - 英文界面
 
 示例数据由 `node scripts/make-sample.js > sample/bookmarks.sample.json` 生成，内容和作者全部虚构。
+
+## 开发者：自己部署一份
+
+Fork 这个仓库，在仓库的 Settings → Pages 里选择从 `main` 分支部署，再把 [`src/card.js`](src/card.js) 里的 `SITE` 改成你的地址，卡片底部就会显示你的链接。
 
 ## License
 
