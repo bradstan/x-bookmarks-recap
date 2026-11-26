@@ -158,3 +158,8 @@ pre { background: var(--panel); border: 1px solid var(--line); border-radius: 12
 .set-head { max-width: 1100px; margin: 24px auto 0; padding: 0 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .set-head h3 { margin: 0; font-size: 20px; }
 .set-head .btn { padding: 10px 18px; font-size: 15px; }
+.tpl-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; max-width: 560px; }
+.tpl { background: var(--panel); border: 2px solid var(--line); border-radius: 14px; padding: 12px 14px; color: var(--text); font: inherit; text-align: left; cursor: pointer; display: flex; flex-direction: column; gap: 4px; }
+.tpl b { font-size: 16px; }
+.tpl span { font-size: 13px; color: var(--muted); }
+.tpl.on { border-color: #7C5CFF; background: #1b1830; }

@@ -77,17 +77,20 @@
           <input id="pname" class="name-input" maxlength="30" placeholder="名字" value="${esc(profile.name)}">
           <input id="phandle" class="name-input" maxlength="30" placeholder="@你的 X 用户名" value="${esc(profile.username ? '@' + profile.username : '')}">
         </div>
+        <div class="tpl-pick" role="radiogroup" aria-label="选择模板">
+          <button class="tpl" data-tpl="posters" role="radio" type="button"><b>档案版 · ${n} 张</b><span>拼贴档案风，适合小红书 9 宫格</span></button>
+          <button class="tpl" data-tpl="dark" role="radio" type="button"><b>深色版 · ${BW_DARK.count} 张</b><span>信息更集中，适合发 X</span></button>
+        </div>
         <div class="actions">
-          <button id="share" class="btn" type="button">分享到 X</button>
+          <button id="dlset" class="btn" type="button">下载这一套</button>
+          <button id="share" class="btn ghost" type="button">分享到 X</button>
           <button id="copy" class="btn ghost" type="button">复制完整文案</button>
         </div>
-        <p class="note">两套图任选：档案版 ${n} 张，适合小红书 9 宫格；深色版 ${BW_DARK.count} 张，信息更集中。都是 1080×1440。</p>
+        <p class="note">都是 1080×1440，可以单张下载。</p>
       </section>
-      <div class="set-head"><h3>档案版 · ${n} 张</h3><button class="btn ghost dlset" data-set="posters" type="button">下载这 ${n} 张</button></div>
       <div class="posters" data-set="posters">
         ${Array.from({ length: n }, (_, i) => `<figure class="poster"><canvas data-kind="p" data-i="${i}"></canvas><figcaption><span>${String(i + 1).padStart(2, '0')} · ${BW_POSTERS.TITLES[i]}</span><button class="link-btn dl1" type="button">下载</button></figcaption></figure>`).join('')}
       </div>
-      <div class="set-head"><h3>深色版 · ${BW_DARK.count} 张</h3><button class="btn ghost dlset" data-set="dark" type="button">下载这 ${BW_DARK.count} 张</button></div>
       <div class="posters" data-set="dark">
         ${Array.from({ length: BW_DARK.count }, (_, i) => `<figure class="poster"><canvas data-kind="d" data-i="${i}"></canvas><figcaption><span>${String(i + 1).padStart(2, '0')} · ${BW_DARK.TITLES[i]}</span><button class="link-btn dl1" type="button">下载</button></figcaption></figure>`).join('')}
       </div>`;
@@ -96,7 +99,9 @@
     $('#report').scrollTop = 0;
 
     await BW_POSTERS.ensureFont();
+    setTemplate(template);
     await drawAll();
+    document.querySelectorAll('.tpl').forEach((b) => b.addEventListener('click', () => { setTemplate(b.dataset.tpl); drawAll(); }));
 
     const later = () => { clearTimeout(redrawTimer); redrawTimer = setTimeout(drawAll, 250); };
     $('#pname').addEventListener('input', (e) => { profile.name = e.target.value.trim(); later(); });
@@ -110,9 +115,9 @@
     const save = (canvas, name) => { const a = document.createElement('a'); a.download = name; a.href = canvas.toDataURL('image/png'); a.click(); };
     const fileName = (cv) => `x-bookmarks-recap-${r.year}-${cv.dataset.kind === 'd' ? 'dark-' : ''}${String(+cv.dataset.i + 1).padStart(2, '0')}.png`;
     document.querySelectorAll('.dl1').forEach((b) => b.addEventListener('click', () => { const cv = b.closest('figure').querySelector('canvas'); save(cv, fileName(cv)); }));
-    document.querySelectorAll('.dlset').forEach((b) => b.addEventListener('click', async () => {
-      for (const cv of document.querySelectorAll(`.posters[data-set="${b.dataset.set}"] canvas`)) { save(cv, fileName(cv)); await new Promise((res) => setTimeout(res, 350)); }
-    }));
+    $('#dlset').addEventListener('click', async () => {
+      for (const cv of document.querySelectorAll(`.posters[data-set="${template}"] canvas`)) { save(cv, fileName(cv)); await new Promise((res) => setTimeout(res, 350)); }
+    });
     $('#copy').addEventListener('click', async (e) => {
       try { await navigator.clipboard.writeText(shareText(r, false)); e.target.textContent = '已复制 ✓'; }
       catch (err) { window.prompt('复制下面的文案：', shareText(r, false)); }
@@ -122,11 +127,22 @@
     });
   }
 
+  // 模板：档案版 posters / 深色版 dark。只画当前选中的那一套；选择记在本机浏览器里
+  let template = (() => { try { return localStorage.getItem('xbr-template') === 'dark' ? 'dark' : 'posters'; } catch (e) { return 'posters'; } })();
+  function setTemplate(tpl) {
+    template = tpl === 'dark' ? 'dark' : 'posters';
+    try { localStorage.setItem('xbr-template', template); } catch (e) { /* 无痕模式等 */ }
+    document.querySelectorAll('.tpl').forEach((b) => { const on = b.dataset.tpl === template; b.classList.toggle('on', on); b.setAttribute('aria-checked', on); });
+    document.querySelectorAll('.posters[data-set]').forEach((el) => { el.hidden = el.dataset.set !== template; });
+    const n = template === 'dark' ? BW_DARK.count : BW_POSTERS.count;
+    const b = $('#dlset'); if (b) b.textContent = `下载这 ${n} 张`;
+  }
+
   async function drawAll() {
     const r = current; if (!r) return;
     const o = { name: profile.name, username: profile.username, avatar: profile.avatar };
     imgs = await BW_POSTERS.loadImages(r, o);
-    document.querySelectorAll('canvas[data-kind="p"]').forEach((cv) => BW_POSTERS.draw(cv, +cv.dataset.i, r, o, imgs));
-    document.querySelectorAll('canvas[data-kind="d"]').forEach((cv) => BW_DARK.draw(cv, +cv.dataset.i, r, o, imgs));
+    if (template === 'dark') document.querySelectorAll('canvas[data-kind="d"]').forEach((cv) => BW_DARK.draw(cv, +cv.dataset.i, r, o, imgs));
+    else document.querySelectorAll('canvas[data-kind="p"]').forEach((cv) => BW_POSTERS.draw(cv, +cv.dataset.i, r, o, imgs));
   }
 })();
