@@ -3,8 +3,8 @@
 // 生成的 wrapped.json 直接拖进网页即可。全程只在你的电脑上运行，读取的是浏览器里 X 的登录状态。
 //
 // 用法：
-//   npx github:bradstan/xbookmark-yearlyreport            # 导出收藏 + 个人资料
-//   npx github:bradstan/xbookmark-yearlyreport --articles # 另外补全 X 长文全文（每篇约 2 秒）
+//   npx github:bradstan/x-bookmarks-recap            # 导出收藏 + 个人资料
+//   npx github:bradstan/x-bookmarks-recap --articles # 另外补全 X 长文全文（每篇约 2 秒）
 // 其它参数会原样传给 bird，例如 --firefox-profile default-release
 import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
@@ -13,13 +13,13 @@ const args = process.argv.slice(2);
 if (args.includes('--help') || args.includes('-h')) {
   console.log(`X收藏夹年度报告 · 导出工具
 
-用法：npx github:bradstan/xbookmark-yearlyreport [选项]
+用法：npx github:bradstan/x-bookmarks-recap [选项]
 
   --articles          另外补全 X 长文全文（每篇约 2 秒），字数和领域统计更准
   --out=文件名        输出文件，默认 wrapped.json
   --firefox-profile default-release   用 Firefox 的登录状态（默认读 Chrome）
 
-导出后打开 https://bradstan.github.io/xbookmark-yearlyreport/ ，把文件拖进去。`);
+导出后打开 https://bradstan.github.io/x-bookmarks-recap/ ，把文件拖进去。`);
   process.exit(0);
 }
 const withArticles = args.includes('--articles');
@@ -94,4 +94,4 @@ if (withArticles) {
 }
 
 writeFileSync(out, JSON.stringify({ me, exportedAt: new Date().toISOString(), tweets }));
-step(`✅ 已保存到 ${out}，把它拖进网页即可：https://bradstan.github.io/xbookmark-yearlyreport/`);
+step(`✅ 已保存到 ${out}，把它拖进网页即可：https://bradstan.github.io/x-bookmarks-recap/`);

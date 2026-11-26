@@ -240,7 +240,7 @@
     });
     $('#dl').addEventListener('click', () => {
       const a = document.createElement('a');
-      a.download = `xbookmark-yearlyreport-${r.year}.png`;
+      a.download = `x-bookmarks-recap-${r.year}.png`;
       a.href = canvas.toDataURL('image/png');
       a.click();
     });

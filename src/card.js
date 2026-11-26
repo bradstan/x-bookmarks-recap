@@ -1,7 +1,7 @@
 // 分享卡片：直接用 Canvas 画，1080×1440（3:4，适合小红书/朋友圈/X）。不依赖任何外部库。
 // 只放让人「显得聪明 / 有趣」的内容，吐槽类徽章不上卡。
 (function (root) {
-  const SITE = 'bradstan.github.io/xbookmark-yearlyreport'; // fork 之后改成你自己的地址
+  const SITE = 'bradstan.github.io/x-bookmarks-recap'; // fork 之后改成你自己的地址
   const FONT = '-apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif';
   const W = 1080, H = 1440, P = 84;
 
