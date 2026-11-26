@@ -19,39 +19,43 @@
     glow(c, W * 0.85, 120, 520, accent, 0.45);
     glow(c, 80, H * 0.62, 460, '#FF4D8D', 0.16);
 
-    // ---- 头像 + 名字 + @id ----
-    const ax = P + 42, ay = 92, ar = 42;
+    // ---- 第一行：头像 + 「2026 X收藏夹年度报告」，名字和 @id 小字放在标题下面 ----
+    const ax = P + 52, ay = 112, ar = 52;
     c.save(); c.beginPath(); c.arc(ax, ay, ar, 0, Math.PI * 2); c.closePath();
     if (opts.avatar && opts.avatar.complete && opts.avatar.naturalWidth) {
       c.clip(); c.drawImage(opts.avatar, ax - ar, ay - ar, ar * 2, ar * 2);
     } else {
       c.fillStyle = accent; c.fill();
-      c.fillStyle = '#fff'; c.font = `800 38px ${FONT}`; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.fillStyle = '#fff'; c.font = `800 44px ${FONT}`; c.textAlign = 'center'; c.textBaseline = 'middle';
       c.fillText(((opts.name || opts.username || 'X')[0] || 'X').toUpperCase(), ax, ay + 2);
     }
     c.restore();
     c.textAlign = 'left'; c.textBaseline = 'alphabetic';
     c.strokeStyle = 'rgba(255,255,255,0.18)'; c.lineWidth = 3; c.beginPath(); c.arc(ax, ay, ar, 0, Math.PI * 2); c.stroke();
-    const nameX = ax + ar + 24, nameMax = W - P - nameX;
-    if (opts.name || opts.username) {
-      c.fillStyle = '#f4f4f8'; fitText(c, opts.name || '@' + opts.username, nameX, ay - 4, nameMax, 36, 800);
-      if (opts.username && opts.name) { c.fillStyle = '#9a9ab0'; fitText(c, '@' + opts.username, nameX, ay + 34, nameMax, 26, 500); }
+
+    const tx = ax + ar + 26, tmax = W - P - tx;
+    const yearStr = String(r.year), rest = ' X收藏夹年度报告';
+    let ts = 54;
+    c.font = `900 ${ts}px ${FONT}`;
+    while (c.measureText(yearStr + rest).width > tmax && ts > 30) { ts -= 2; c.font = `900 ${ts}px ${FONT}`; }
+    const hasWho = !!(opts.name || opts.username);
+    let y = hasWho ? ay + 4 : ay + ts * 0.36, x = tx;
+    c.fillStyle = grad(); c.fillText(yearStr, x, y); x += c.measureText(yearStr).width;
+    c.fillStyle = '#f4f4f8'; c.fillText(rest, x, y);
+    if (hasWho) {
+      const who = [opts.name, opts.username ? '@' + opts.username : ''].filter(Boolean).join(' · ');
+      c.fillStyle = '#9a9ab0'; fitText(c, who, tx, ay + 46, tmax, 28, 500);
     }
 
-    // ---- 标题 ----
-    let y = 212, x = P;
-    const seg = (s, fill) => { c.font = `900 54px ${FONT}`; c.fillStyle = fill; c.fillText(s, x, y); x += c.measureText(s).width; };
-    seg('我的', '#f4f4f8'); seg(String(r.year), grad()); seg(' X收藏夹年度报告', '#f4f4f8');
-
     // ---- 收藏总数 ----
-    y = 316; x = P;
+    y = 290; x = P;
     const k = r.kinds;
     const lead = `${r.year}年我在X上一共收藏了`;
     c.font = `600 32px ${FONT}`; c.fillStyle = '#cfcfe0'; c.fillText(lead, x, y); x += c.measureText(lead).width + 12;
     c.font = `900 96px ${FONT}`; c.fillStyle = grad(); c.fillText(String(r.total), x, y); x += c.measureText(String(r.total)).width + 12;
     c.font = `600 32px ${FONT}`; c.fillStyle = '#cfcfe0'; c.fillText('个内容', x, y);
     y += 26; x = P;
-    for (const [label, v] of [['帖子', k.post], ['文章', k.article], ['视频', k.video]]) {
+    for (const [label, v] of [['📝 帖子', k.post], ['📰 文章', k.article], ['🎬 视频', k.video]]) {
       c.font = `500 26px ${FONT}`; const lw = c.measureText(label).width;
       c.font = `800 30px ${FONT}`; const vw = c.measureText(String(v)).width;
       const w = lw + vw + 50;

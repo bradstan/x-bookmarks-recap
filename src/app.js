@@ -65,7 +65,7 @@
     const medals = ['🥇', '🥈', '🥉', '4.', '5.'];
     const books = Math.max(1, Math.round(r.chars / 100000));
     const L = [`我的${r.year} X收藏夹年度报告`, '',
-      `${r.year}年我在X上一共收藏了 ${r.total} 个内容，其中帖子 ${r.kinds.post} 条、文章 ${r.kinds.article} 篇、视频 ${r.kinds.video} 条；约 ${BW.fmtWords(r.chars)} 字，相当于读完 ${books} 本书。`, '',
+      `${r.year}年我在X上一共收藏了 ${r.total} 个内容，其中📝 帖子 ${r.kinds.post} 条、📰 文章 ${r.kinds.article} 篇、🎬 视频 ${r.kinds.video} 条；约 ${BW.fmtWords(r.chars)} 字，相当于读完 ${books} 本书。`, '',
       `我的收藏人格：${r.persona.name}`, '',
       '我最关注的领域：', ...r.topics.slice(0, short ? 3 : 5).map((t, i) => `${medals[i]} ${t.name} ${t.count} 条`)];
     if (!short) {
