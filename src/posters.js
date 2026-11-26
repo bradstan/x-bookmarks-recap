@@ -193,10 +193,10 @@
     else if (kind === 'bm') { c.moveTo(-7, -10); c.lineTo(7, -10); c.lineTo(7, 10); c.lineTo(0, 4); c.lineTo(-7, 10); c.closePath(); filled ? c.fill() : c.stroke(); }
     c.restore();
   }
-  function xCard(c, t, x, y, w, imgs, { maxText = 4, showImage = true } = {}) {
+  function xCard(c, t, x, y, w, imgs, { maxText = 4, showImage = true, imgRatio = 0.4 } = {}) {
     const pad = 22; let h = 0;
     const img = showImage && t.thumb ? imgs.get(t.thumb) : null;
-    const imgH = img ? Math.round(w * 0.4) : 0;
+    const imgH = img ? Math.round(w * imgRatio) : 0;
     const title = t.articleTitle || '';
     const body = (t.isArticle ? (t.articlePreview || t.articleText.slice(0, 200)) : t.text.replace(/https?:\/\/t\.co\/\S+/g, '').trim()) || '';
     // 先量高度
@@ -638,5 +638,5 @@
     pages[i](c, r, o, imgs);
   }
 
-  root.BW_POSTERS = { draw, loadImages, ensureFont, count: pages.length, TITLES, W, H };
+  root.BW_POSTERS = { draw, loadImages, ensureFont, count: pages.length, TITLES, W, H, util: { xCard, wrap, para, fit, text, font, avatarCircle, cover, rrect, fillRR, shadow, rotated } };
 })(window);

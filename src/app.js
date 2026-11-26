@@ -78,15 +78,18 @@
           <input id="phandle" class="name-input" maxlength="30" placeholder="@你的 X 用户名" value="${esc(profile.username ? '@' + profile.username : '')}">
         </div>
         <div class="actions">
-          <button id="dlall" class="btn" type="button">下载全部 ${n + 1} 张</button>
-          <button id="share" class="btn ghost" type="button">分享到 X</button>
+          <button id="share" class="btn" type="button">分享到 X</button>
           <button id="copy" class="btn ghost" type="button">复制完整文案</button>
         </div>
-        <p class="note">共 ${n} 张档案海报 + 1 张一图总结，都是 1080×1440，适合小红书 9 宫格；发 X 可以选其中 4 张。</p>
+        <p class="note">两套图任选：档案版 ${n} 张，适合小红书 9 宫格；深色版 ${BW_DARK.count} 张，信息更集中。都是 1080×1440。</p>
       </section>
-      <div class="posters">
-        ${Array.from({ length: n }, (_, i) => `<figure class="poster"><canvas data-i="${i}"></canvas><figcaption><span>${String(i + 1).padStart(2, '0')} · ${BW_POSTERS.TITLES[i]}</span><button class="link-btn dl1" data-i="${i}" type="button">下载</button></figcaption></figure>`).join('')}
-        <figure class="poster"><canvas id="card"></canvas><figcaption><span>10 · 一图总结</span><button class="link-btn dl1" data-i="card" type="button">下载</button></figcaption></figure>
+      <div class="set-head"><h3>档案版 · ${n} 张</h3><button class="btn ghost dlset" data-set="posters" type="button">下载这 ${n} 张</button></div>
+      <div class="posters" data-set="posters">
+        ${Array.from({ length: n }, (_, i) => `<figure class="poster"><canvas data-kind="p" data-i="${i}"></canvas><figcaption><span>${String(i + 1).padStart(2, '0')} · ${BW_POSTERS.TITLES[i]}</span><button class="link-btn dl1" type="button">下载</button></figcaption></figure>`).join('')}
+      </div>
+      <div class="set-head"><h3>深色版 · ${BW_DARK.count} 张</h3><button class="btn ghost dlset" data-set="dark" type="button">下载这 ${BW_DARK.count} 张</button></div>
+      <div class="posters" data-set="dark">
+        ${Array.from({ length: BW_DARK.count }, (_, i) => `<figure class="poster"><canvas data-kind="d" data-i="${i}"></canvas><figcaption><span>${String(i + 1).padStart(2, '0')} · ${BW_DARK.TITLES[i]}</span><button class="link-btn dl1" type="button">下载</button></figcaption></figure>`).join('')}
       </div>`;
     $('#landing').hidden = true;
     $('#report').hidden = false;
@@ -105,14 +108,11 @@
       fr.readAsDataURL(f);
     });
     const save = (canvas, name) => { const a = document.createElement('a'); a.download = name; a.href = canvas.toDataURL('image/png'); a.click(); };
-    const fileName = (i) => `x-bookmarks-recap-${r.year}-${i === 'card' ? '10' : String(+i + 1).padStart(2, '0')}.png`;
-    document.querySelectorAll('.dl1').forEach((b) => b.addEventListener('click', () => {
-      const i = b.dataset.i; save(i === 'card' ? $('#card') : document.querySelector(`canvas[data-i="${i}"]`), fileName(i));
+    const fileName = (cv) => `x-bookmarks-recap-${r.year}-${cv.dataset.kind === 'd' ? 'dark-' : ''}${String(+cv.dataset.i + 1).padStart(2, '0')}.png`;
+    document.querySelectorAll('.dl1').forEach((b) => b.addEventListener('click', () => { const cv = b.closest('figure').querySelector('canvas'); save(cv, fileName(cv)); }));
+    document.querySelectorAll('.dlset').forEach((b) => b.addEventListener('click', async () => {
+      for (const cv of document.querySelectorAll(`.posters[data-set="${b.dataset.set}"] canvas`)) { save(cv, fileName(cv)); await new Promise((res) => setTimeout(res, 350)); }
     }));
-    $('#dlall').addEventListener('click', async () => {
-      const list = [...document.querySelectorAll('.posters canvas')];
-      for (const [k, cv] of list.entries()) { save(cv, fileName(cv.id === 'card' ? 'card' : k)); await new Promise((res) => setTimeout(res, 350)); }
-    });
     $('#copy').addEventListener('click', async (e) => {
       try { await navigator.clipboard.writeText(shareText(r, false)); e.target.textContent = '已复制 ✓'; }
       catch (err) { window.prompt('复制下面的文案：', shareText(r, false)); }
@@ -126,7 +126,7 @@
     const r = current; if (!r) return;
     const o = { name: profile.name, username: profile.username, avatar: profile.avatar };
     imgs = await BW_POSTERS.loadImages(r, o);
-    document.querySelectorAll('.posters canvas[data-i]').forEach((cv) => BW_POSTERS.draw(cv, +cv.dataset.i, r, o, imgs));
-    BW_CARD.draw($('#card'), r, { name: profile.name, username: profile.username, avatar: avatarImg });
+    document.querySelectorAll('canvas[data-kind="p"]').forEach((cv) => BW_POSTERS.draw(cv, +cv.dataset.i, r, o, imgs));
+    document.querySelectorAll('canvas[data-kind="d"]').forEach((cv) => BW_DARK.draw(cv, +cv.dataset.i, r, o, imgs));
   }
 })();
