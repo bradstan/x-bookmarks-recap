@@ -10,6 +10,18 @@ import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
 
 const args = process.argv.slice(2);
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(`X收藏夹年度报告 · 导出工具
+
+用法：npx github:bradstan/xbookmark-yearlyreport [选项]
+
+  --articles          另外补全 X 长文全文（每篇约 2 秒），字数和领域统计更准
+  --out=文件名        输出文件，默认 wrapped.json
+  --firefox-profile default-release   用 Firefox 的登录状态（默认读 Chrome）
+
+导出后打开 https://bradstan.github.io/xbookmark-yearlyreport/ ，把文件拖进去。`);
+  process.exit(0);
+}
 const withArticles = args.includes('--articles');
 const out = (args.find((a) => a.startsWith('--out=')) || '--out=wrapped.json').slice(6);
 const birdArgs = args.filter((a) => a !== '--articles' && !a.startsWith('--out='));
@@ -51,7 +63,13 @@ if (me.username) {
 
 // 3. 收藏
 step('② 导出全部收藏（几百条大约需要半分钟）…');
-const data = JSON.parse(bird('bookmarks', '--all', '--json-full'));
+let data;
+try { data = JSON.parse(bird('bookmarks', '--all', '--json-full')); }
+catch (e) {
+  step('❌ 没能读取收藏夹。请确认：1) 电脑上的 Chrome 已登录 X；2) 网络能打开 x.com。');
+  step('   详细错误：' + String((e.stderr || e.message || e)).trim().split('\n').slice(-2).join(' '));
+  process.exit(1);
+}
 const tweets = Array.isArray(data) ? data : data.tweets || [];
 step(`   共 ${tweets.length} 条`);
 
