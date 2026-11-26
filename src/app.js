@@ -60,6 +60,24 @@
   }
   const dayLabel = (k) => { const [, m, d] = k.split('-'); return `${m} 月 ${d} 日`; };
 
+  // 分享文案：short 用于 X（字数有限），完整版用于复制到小红书等平台
+  function shareText(r, short) {
+    const medals = ['🥇', '🥈', '🥉', '4.', '5.'];
+    const books = Math.max(1, Math.round(r.chars / 100000));
+    const L = [`我的${r.year} X收藏夹年度报告`, '',
+      `${r.year}年我在X上一共收藏了 ${r.total} 个内容，其中帖子 ${r.kinds.post} 条、文章 ${r.kinds.article} 篇、视频 ${r.kinds.video} 条；约 ${BW.fmtWords(r.chars)} 字，相当于读完 ${books} 本书。`, '',
+      `我的收藏人格：${r.persona.name}`, '',
+      '我最关注的领域：', ...r.topics.slice(0, short ? 3 : 5).map((t, i) => `${medals[i]} ${t.name} ${t.count} 条`)];
+    if (!short) {
+      L.push('', '我收藏最多的作者：', ...r.authors.slice(0, 3).map((a, i) => `${i + 1}. @${a.username}（${a.count} 条）`));
+      if (r.brands[0]) L.push('', `我的年度最爱：${r.brands[0].name}`);
+      if (r.keywords[0]) L.push(`我的年度关键词：${r.keywords[0].word}`);
+      L.push('', r.summary);
+    }
+    L.push('', `生成你的 👉 https://${BW_CARD.SITE}/`);
+    return L.join('\n');
+  }
+
   // ---------- 渲染 ----------
   function render(year) {
     let r;
@@ -183,6 +201,7 @@
     S.push(slide('你的收藏人格', `
       <div class="persona-name grad" style="background-image:linear-gradient(90deg, ${r.persona.color}, #FF4D8D)">${esc(r.persona.name)}</div>
       <p>${esc(r.persona.line)}</p>
+      <p class="summary">${esc(r.summary)}</p>
       <div class="badges">${r.badges.map((b) => `<div class="badge ${b.brag ? '' : 'roast'}"><b>${esc(b.name)}</b><span>${esc(b.desc)}</span></div>`).join('')}</div>
       ${note('带虚线框的是「只给你自己看」的吐槽，不会出现在分享卡片上。')}`));
 
@@ -199,6 +218,7 @@
         <div class="actions">
           <button id="dl" class="btn" type="button">下载图片</button>
           <button id="share" class="btn ghost" type="button">分享到 X</button>
+          <button id="copy" class="btn ghost" type="button">复制完整文案</button>
         </div>
       </div>`));
 
@@ -224,9 +244,12 @@
       a.href = canvas.toDataURL('image/png');
       a.click();
     });
+    $('#copy').addEventListener('click', async (e) => {
+      try { await navigator.clipboard.writeText(shareText(r, false)); e.target.textContent = '已复制 ✓'; }
+      catch (err) { window.prompt('复制下面的文案：', shareText(r, false)); }
+    });
     $('#share').addEventListener('click', () => {
-      const medals = ['🥇', '🥈', '🥉', '4.', '5.'];
-      const text = `我的${r.year} X收藏夹年度报告\n\n${r.year}年我在X上一共收藏了 ${r.total} 个内容（帖子 ${r.kinds.post}、文章 ${r.kinds.article}、视频 ${r.kinds.video}），约 ${BW.fmtWords(r.chars)} 字，相当于读完 ${Math.max(1, Math.round(r.chars / 100000))} 本书。\n\n我最关注的领域：\n${r.topics.slice(0, 5).map((t, i) => `${medals[i]} ${t.name} ${t.count} 条`).join('\n')}\n\n我的收藏人格：${r.persona.name}\n\n生成你的 👉 https://${BW_CARD.SITE}/`;
+      const text = shareText(r, true);
       window.open('https://x.com/intent/post?text=' + encodeURIComponent(text), '_blank', 'noopener');
     });
   }

@@ -272,6 +272,21 @@
     if (digDays > 365) add('考古学家', `你收藏了一条 ${Math.floor(digDays / 365)} 年前的推文。`, true);
     if (Math.max(...months) / n > 0.2) add('收藏暴走月', `${peakMonth + 1} 月一个月收藏了 ${months[peakMonth]} 条。`, false);
 
+    // 9. 年度总结：根据内容方向、形式、广度，写一段正面鼓励的话
+    const summary = (() => {
+      const names = topics.slice(0, 3).map((t) => t.name);
+      const frontier = ['agent', 'dev', 'aigc'].includes(topics[0] && topics[0].id);
+      const parts = [];
+      if (names.length) parts.push(`你把目光投向了${names.join('、')}，${frontier ? '一直站在变化的最前沿' : '一直在为真正重要的事积累'}`);
+      const deep = formats.article + formats.longPost;
+      if (deep >= n * 0.3) parts.push(`${formats.article} 篇长文说明你愿意为深度花时间`);
+      else if (kinds.video >= n * 0.15) parts.push(`${kinds.video} 条视频让你学得又快又直观`);
+      else parts.push('碎片时间也被你用来高效吸收');
+      if (en / n > 0.1 && cjk / n > 0.25) parts.push('中英双语输入让你看得更早、更远');
+      else if (authors.length >= 100) parts.push(`${authors.length} 位作者的见解汇成了你的知识地图`);
+      return parts.join('；') + `。${year + 1}，把收藏变成作品，你已经准备好了！`;
+    })();
+
     return {
       year, years, total: n, allTotal: all.length, hasRaw,
       chars, charsEstimated, readHours, videoMinutes, totalViews, articleCount, articlesWithText,
@@ -282,7 +297,7 @@
       medianLikes, medianViews, mostViral, hiddenGem, saveRatio, rarest, domains, github,
       formats, kinds, cjk, en,
       firstOfYear, latest, dig: { tweet: dig, days: digDays },
-      keywords, persona, badges: B,
+      keywords, persona, badges: B, summary,
       tweetUrl,
     };
   }
